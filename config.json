@@ -1,0 +1,188 @@
+{
+  "users": [
+    {
+      "id": 8,
+      "nom": "malak",
+      "email": "malak@gmail.com",
+      "password": "$2b$10$/GeJaB857EXhd33xsYDZOeVv7hKfz8PI7/lxpAfDOtAYVTu3rqisq",
+      "profil": {
+        "nom": "user"
+      },
+      "trialStartDate": "2024-08-01T00:00:00Z",
+      "trialEndDate": "2024-08-31T23:59:59Z",
+      "isTrialActive": true
+    },
+    {
+      "id": 10,
+      "nom": "dounia",
+      "email": "dounia@gmail.com",
+      "password": "$2b$10$u0S285Wh26gykBmGfFJ/revl.WQICVRF818fUJYqt4jRusJjjS2o2",
+      "profil": {
+        "nom": "user"
+      },
+      "trialStartDate": "2024-08-01T00:00:00Z",
+      "trialEndDate": "2024-08-31T23:59:59Z",
+      "isTrialActive": false
+    },
+    {
+      "id": 11,
+      "nom": "najalaa",
+      "email": "najalaa@gmail.com",
+      "password": "$2b$10$iGAQAPiveabVedIYnJeFX.Ep2UJ6xHsx3u1BiiMtziDIwCBrtZq5u",
+      "profil": {
+        "nom": "user"
+      },
+      "trialStartDate": "2024-08-01T00:00:00Z",
+      "trialEndDate": "2024-08-31T23:59:59Z",
+      "isTrialActive": true
+    },
+    {
+      "id": 12,
+      "nom": "jamil",
+      "email": "jamila@gmail.com",
+      "password": "$2b$10$.OHdV0bOUsudSRYhs7IUP.MvhKx0r6.wl/XveFlCfkMrqZ6IK3Es2",
+      "profil": {
+        "nom": "user"
+      },
+      "trialStartDate": "2024-07-01T00:00:00Z",
+      "trialEndDate": "2024-07-31T23:59:59Z",
+      "isTrialActive": false
+    },
+    {
+      "id": 15,
+      "nom": "naima",
+      "email": "naima@gmail.com",
+      "password": "$2b$10$bCiqL1Cfg3917jvaqeK3FetW305jJvG2aTIk2cAAtztElCHxbQ042",
+      "profil": {
+        "nom": "admin"
+      },
+      "trialStartDate": "2024-08-01T00:00:00Z",
+      "trialEndDate": "2024-08-31T23:59:59Z",
+      "isTrialActive": true
+    },
+    {
+      "id": 17,
+      "nom": "narjiss",
+      "email": "narjiss@gmail.com",
+      "password": "$2b$10$pRkjuiAr6ENMUNsrtKakOuik/NtfdyB9Er4ntwg5Rk4rHx1AOIXqe",
+      "profil": {
+        "nom": "admin"
+      }
+    },
+    {
+      "id": 18,
+      "nom": "joudian",
+      "email": "joudia@gmail.com",
+      "password": "$2b$10$hmf41Tg3tG1y5o41NIULQOHOg.t1/SDIv3ToeiaNWr8L0vFZCZs9C",
+      "profil": {
+        "nom": "user"
+      }
+    },
+    {
+      "id": 24,
+      "nom": "chaimae",
+      "email": "admin@gmail.com",
+      "password": "$2b$10$8OyMrsFhJTjcj2K7IDty9O4KRVLvo/Z0WnZOiDATsmcDdhM0XG0bS",
+      "profil": {
+        "nom": "admin"
+      },
+      "trialStartDate": "2024-08-09T10:46:38.628Z",
+      "trialEndDate": "2024-09-08T10:46:38.628Z",
+      "isTrialActive": true
+    },
+    {
+      "id": 25,
+      "nom": "malak",
+      "email": "malak@gmail.com",
+      "password": "$2b$10$5VE74gw3ntc7CLPbA1JyKOegFJfQ0ysyMQfYueA0QREBNPzYMOU2u",
+      "profil": {
+        "nom": "admin"
+      },
+      "trialStartDate": "2024-08-14T11:25:54.974Z",
+      "trialEndDate": "2024-09-13T11:25:54.974Z",
+      "isTrialActive": true
+    },
+    {
+      "id": 26,
+      "nom": "DB",
+      "email": "dben4601@gmail.com",
+      "password": "$2b$10$oG4ZRIEUm/e.mf9JsYe32.6jkYuRAQ/NEDez637.UsW0mlZEWpTrO",
+      "profil": {
+        "nom": "user"
+      },
+      "trialStartDate": "2024-08-14T11:28:48.552Z",
+      "trialEndDate": "2024-09-13T11:28:48.552Z",
+      "isTrialActive": true
+    },
+    {
+      "id": 27,
+      "nom": "DB-admin",
+      "email": "driss.bensouda.s2d@gmail.com",
+      "password": "$2b$10$JYy4y.ZOAE7cPk/UVdeMyeU7ntMkIVC67tr3jTXX51h9O4QnBbcyC",
+      "profil": {
+        "nom": "admin"
+      },
+      "trialStartDate": "2024-08-14T11:30:01.159Z",
+      "trialEndDate": "2024-09-13T11:30:01.159Z",
+      "isTrialActive": true
+    }
+  ],
+  "profiles": [
+    {
+      "nom": "admin"
+    },
+    {
+      "nom": "user"
+    }
+  ],
+  "notifications": [
+    {
+      "id": 1722520175034,
+      "message": "New user registered: aline@gmail.com",
+      "createdAt": "2024-08-01T13:49:35.034Z",
+      "read": false
+    },
+    {
+      "id": 1723033901619,
+      "message": "New user registered: sihammh@gmail.com",
+      "createdAt": "2024-08-07T12:31:41.619Z",
+      "read": false
+    },
+    {
+      "id": 1723158262998,
+      "message": "Nouvel utilisateur créé : malika@gmail.com",
+      "createdAt": "2024-08-08T23:04:22.998Z",
+      "read": false
+    },
+    {
+      "id": 1723200398654,
+      "message": "Nouvel utilisateur créé : admin@gmail.com",
+      "createdAt": "2024-08-09T10:46:38.654Z",
+      "read": false
+    },
+    {
+      "id": 1723369983573,
+      "message": "Nouvel utilisateur créé : salama@gmail.com",
+      "createdAt": "2024-08-11T09:53:03.573Z",
+      "read": false
+    },
+    {
+      "id": 1723634755001,
+      "message": "Nouvel utilisateur créé : malak@gmail.com",
+      "createdAt": "2024-08-14T11:25:55.001Z",
+      "read": false
+    },
+    {
+      "id": 1723634928574,
+      "message": "Nouvel utilisateur créé : dben4601@gmail.com",
+      "createdAt": "2024-08-14T11:28:48.574Z",
+      "read": false
+    },
+    {
+      "id": 1723635001184,
+      "message": "Nouvel utilisateur créé : driss.bensouda.s2d@gmail.com",
+      "createdAt": "2024-08-14T11:30:01.184Z",
+      "read": false
+    }
+  ]
+}

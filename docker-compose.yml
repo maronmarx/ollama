@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  mler-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - PROJECT_ROOT=${PROJECT_ROOT}
+      - JWT_SECRET=${JWT_SECRET}
+      - OLLAMA_URL=http://ollama:11434/v1/
+    depends_on:
+      - ollama  
+    volumes:
+      - ${PROJECT_ROOT}/projet:/app/projet
+      - ${PROJECT_ROOT}/partager:/app/partager
+      - ${PROJECT_ROOT}/deployer:/app/deployer
+      - ${PROJECT_ROOT}/data:/app/data
+      - ${PROJECT_ROOT}/prediction.R:/app/prediction.R
+      - ${PROJECT_ROOT}/performance_prediction.R:/app/performance_prediction.R
+      - ${PROJECT_ROOT}/LOG:/app/Log
+      - ${PROJECT_ROOT}/config.json:/app/config.json
+      - /app/node_modules
+    ports:
+      - "3000:3000"
+    networks:
+      - app-network
+  
+    command: npm run dev
+    develop:
+      watch:
+        - action: sync
+          path: .
+          target: ./app
+          ignore:
+            - node_modules/
+            - projet/
+            - partager/
+            - deployer/
+            - data/
+            - prediction.R
+            - performance_prediction.R
+            - LOG/
+            - config.json
+        - action: rebuild
+          path: package.json
+
+  ollama:
+    image: ollama/ollama
+    volumes:
+      - ollama:/root/.ollama
+    container_name: ollama
+    pull_policy: always
+    tty: true
+    restart: unless-stopped
+    ports:
+      - '11434:11434'
+    expose:
+      - '11434'
+    networks:
+      - app-network  
+networks:
+  app-network:
+    driver: bridge
+volumes:
+  ollama:
+    external: true
