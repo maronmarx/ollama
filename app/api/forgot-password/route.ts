@@ -2,12 +2,11 @@ import bcrypt from 'bcryptjs';
 import fs from 'fs';
 import { NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
-import path from 'path';
 
 export async function POST(req: Request) {
   try {
     const { email } = await req.json();
-    const apiPath = path.join(process.cwd(), 'api.json');
+    const apiPath = '/app/config.json'
     const data = JSON.parse(fs.readFileSync(apiPath, 'utf-8'));
     const user = data.users.find((u: any) => u.email === email);
 

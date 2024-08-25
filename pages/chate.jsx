@@ -23,7 +23,7 @@ function ChatBot() {
   const [showInputArea, setShowInputArea] = useState(true);
   const nomProjectRef = useRef(nomProject);
   const projectDirectoryRef = useRef(projectDirectory);
-
+  const [isGenerating, setIsGenerating] = useState(false);
   useEffect(() => {
     nomProjectRef.current = nomProject;
   }, [nomProject]);
@@ -44,7 +44,6 @@ function ChatBot() {
     }
   }, [waitingForInput]);
   const handleModelType = useCallback(
-
     (type) => {
       setModelType(type);
       setMessages((prevMessages) => {
@@ -67,8 +66,6 @@ function ChatBot() {
         return [...updatedMessages, newUserMessage, newBotMessage];
       });
       setWaitingForInput(true);
-
-
     },
     [setModelType, setWaitingForInput, setNomProject, userInput]
   );
@@ -96,7 +93,6 @@ function ChatBot() {
         return [...updatedMessages, newUserMessage, newBotMessage];
       });
       setWaitingForInput(true);
-
     },
     [setModelType, setNomProject, userInput]
   );
@@ -141,7 +137,6 @@ function ChatBot() {
       return [...updatedMessages, newUserMessage, newBotMessage];
     });
     setWaitingForInput(true);
-
   }, [setModelType, setWaitingForInput, setNomProject, userInput]);
 
   const getInitialMessages = useCallback(
@@ -173,8 +168,6 @@ function ChatBot() {
             handleEvaluateModel={handleEvaluateModel}
             handleShareModel={handleShareModel}
             handleDeployModel={handleDeployModel}
-
-
           />
         ),
         requireInput: false,
@@ -281,6 +274,7 @@ function ChatBot() {
         const data = await response.json();
 
         if (response.ok) {
+          setShowInputArea(true);
           setMessages((prevMessages) => [
             ...prevMessages,
             {
@@ -342,7 +336,13 @@ function ChatBot() {
         ]);
       }
     },
-    [setMessages, handleModelType, handleEvaluateModel, handleShareModel, handleDeployModel]
+    [
+      setMessages,
+      handleModelType,
+      handleEvaluateModel,
+      handleShareModel,
+      handleDeployModel,
+    ]
   );
   const handleDeploybtnProjet = useCallback(
     async (nomProject) => {
@@ -377,6 +377,7 @@ function ChatBot() {
               user: "MLER",
               text: (
                 <MessageButtonGroup
+                  setShowInputArea={setShowInputArea}
                   handleModelType={handleModelType}
                   handleEvaluateModel={handleEvaluateModel}
                   handleShareModel={handleShareModel}
@@ -386,6 +387,7 @@ function ChatBot() {
               requireInput: false,
             },
           ]);
+          setShowInputArea(true);
         } else {
           let errorMessage = data.message || "Une erreur est survenue.";
           setMessages((prevMessages) => [
@@ -419,7 +421,13 @@ function ChatBot() {
         ]);
       }
     },
-    [setMessages, handleModelType, handleEvaluateModel, handleShareModel, handleDeployModel]
+    [
+      setMessages,
+      handleModelType,
+      handleEvaluateModel,
+      handleShareModel,
+      handleDeployModel,
+    ]
   );
 
   // const handleShareClick = useCallback(
@@ -525,363 +533,42 @@ function ChatBot() {
   //   ]
   // );
 
-  const prediction = useCallback(async (tableName, nomProject, projectDirectory, nbrModels) => {
-    try {
-      const response = await fetch("/api/prediction", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ tableName, nomProject, projectDirectory, nbrModels }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Erreur lors de la génération du rapport");
-      }
-
-      const result = await response.json();
-
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        { user: "MLER", text: result.message, requireInput: false },
-        {
-          user: "MLER",
-          text: "Merci de choisir l’action que vous souhaitez",
-          requireInput: false,
-        },
-        getInitialMessages()[1],
-      ]);
-    } catch (error) {
-      console.error(error);
-      handleError("Error generating report");
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        {
-          user: "MLER",
-          text: "Merci de saisir le nom du projet",
-          requireInput: true,
-        },
-      ]);
-    }
-  }, [setMessages, getInitialMessages]);
-
-
-  // Check if project exists in partager
-  const evaluer_partager = useCallback(async (projectName) => {
-    try {
-      const checkResponse = await fetch('/api/evaluer-partager', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nomProject: projectName })
-      });
-      const checkData = await checkResponse.json();
-
-      if (checkData.exists) {
-        setMessages(prevMessages => [
-          ...prevMessages,
-          { id: 20, user: "MLER", text: `Le projet "${projectName}" existe dans le répertoire partager.`, requireInput: false }
-
-        ]);
-        console.log("checkData", checkData.projectPath);
-        nomProject
-        console.log("table partager", tableName);
-        console.log("projectName partager", projectName);
-
-        await performance_prediction(tableName, projectName, checkData.projectPath);
-
-        // const predictionResponse = await fetch('/api/evaluer_performance', {
-        //   method: 'POST',
-        //   headers: { 'Content-Type': 'application/json' },
-        //   body: JSON.stringify({ tableName, nomProject: projectName, repProject: '/app/partager' })
-        // });
-
-        setMessages(prevMessages => [
-          ...prevMessages,
-          ...getInitialMessages()
-        ]);
-      } else {
-        setMessages(prevMessages => [
-          ...prevMessages,
-          { id: 21, user: "MLER", text: `Le projet "${projectName}" n'existe pas dans le répertoire partager.`, requireInput: false },
-          { id: 21, user: "MLER", text: "Merci de saisir le nom du projet", requireInput: true }
-        ]);
-      }
-    } catch (error) {
-      console.error('Erreur:', error);
-      setMessages(prevMessages => [
-        ...prevMessages,
-        { id: 22, user: "MLER", text: "Une erreur s'est produite lors du traitement de votre demande.", requireInput: false },
-        { id: 21, user: "MLER", text: "Merci de saisir le nom du projet", requireInput: true }
-      ]);
-    }
-  }, [
-    nomProject,
-    setMessages,
-    setProjectDirectory,
-    setWaitingForInput,
-    setNomProject,
-    userInput,
-  ]
-  );
-  const evaluer_deployer = useCallback(async (projectName) => {
-    try {
-      const checkResponse = await fetch('/api/evaluer-deployer', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nomProject: projectName })
-      });
-      const checkData = await checkResponse.json();
-
-      if (checkData.exists) {
-        setMessages(prevMessages => [
-          ...prevMessages,
-          { id: 20, user: "MLER", text: `Le projet "${projectName}" existe dans le répertoire deployer.`, requireInput: false }
-
-        ]);
-        console.log("checkData", checkData.projectPath);
-        nomProject
-        console.log("table partager", tableName);
-        console.log("projectName partager", projectName);
-
-        await performance_prediction(tableName, projectName, checkData.projectPath);
-
-        setMessages(prevMessages => [
-          ...prevMessages,
-          ...getInitialMessages()
-        ]);
-      } else {
-        setMessages(prevMessages => [
-          ...prevMessages,
-          { id: 21, user: "MLER", text: `Le projet "${projectName}" n'existe pas dans le répertoire deployer.`, requireInput: false },
-          { id: 21, user: "MLER", text: "Merci de saisir le nom du projet", requireInput: true }
-        ]);
-      }
-    } catch (error) {
-      console.error('Erreur:', error);
-      setMessages(prevMessages => [
-        ...prevMessages,
-        { id: 22, user: "MLER", text: "Une erreur s'est produite lors du traitement de votre demande.", requireInput: false },
-        { id: 21, user: "MLER", text: "Merci de saisir le nom du projet", requireInput: true }
-      ]);
-    }
-  }, [
-    nomProject,
-    setMessages,
-    setProjectDirectory,
-    setWaitingForInput,
-    setNomProject,
-    userInput,
-  ]
-  );
-
-  const checkProject_predection = useCallback(async (nomProjet) => {
-    setNomProject(nomProjet)
-    nomProjectRef.current
-    console.log("nomProjet checkProject_predection", nomProjet)
-    try {
-      const response = await fetch('/api/checkproject', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ nomProjet }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Erreur HTTP: ${response.status}`);
-      }
-
-      const data = await response.json();
-
-      if (data.exists) {
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          { user: "MLER", text: `Le répertoire existe dans le chemin ${data.projectPath}` },
-          { user: "MLER", text: "Merci de saisir le nom du projet", requireInput: true },
-        ]);
-        setProjectDirectory(data.projectPath);
-        projectDirectoryRef.current
-      } else if (data.created) {
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          { user: "MLER", text: `Le répertoire a été créé dans le chemin /app/projet/${nomProjet}` },
-          { user: "MLER", text: "Merci de saisir le nom de la table :", requireInput: true },
-        ]);
-        setProjectDirectory(data.projectPath);
-        projectDirectoryRef.current
-      }
-
-    } catch (error) {
-      console.error('Erreur lors de la vérification du projet:', error);
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        { user: "MLER", text: `Erreur: ${error.message}` },
-      ]);
-    }
-  }, [setNomProject, setMessages, setProjectDirectory]);
-  //calcule numbre model de prediction
-  const handleNumInputForModels = useCallback((userInput) => {
-    const numInput = parseInt(userInput, 10);
-
-    if (numInput > 10) {
-      setWaitingForInput(true);
-
-      // Afficher les informations de débogage
-
-
-      // Appeler la fonction prediction avec les paramètres requis
-      prediction(tableName, nomProject, projectDirectory, numInput);
-    } else if (numInput <= 10) {
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        {
-          user: "MLER",
-          text: "Merci de saisir un nombre supérieur à 10 de modèles à comparer.",
-          requireInput: true,
-        },
-      ]);
-      setWaitingForInput(true);
-    }
-
-    // Assurez-vous de ne pas appeler setWaitingForInput plusieurs fois inutilement
-  }, [projectDirectory, nomProject, tableName, setMessages, setWaitingForInput]);
-
-
-  const handleSearchTableInPath = useCallback(async (userInput) => {
-    console.log("nomProjet handleSearchTableInPath ", nomProject)
-    try {
-      const response = await fetch(
-        `/api/checkFile/route?tableName=${userInput}`
-      );
-      setTablePath(userInput);
-      const data = await response.json();
-      const buttonsMessageId = new Date().getTime(); // Exemple d'ID unique basé sur l'heure
-
-      if (data.exists) {
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          {
-            user: "MLER",
-            text: `Le fichier ${userInput} existe dans le chemin spécifié.${tablePath}`,
-            requireInput: false,
+  const prediction = useCallback(
+    async (tableName, nomProject, projectDirectory, nbrModels) => {
+      try {
+        const response = await fetch("/api/prediction", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
           },
-        ]);
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          {
-            user: "MLER",
-            text: "Souhaitez-vous préciser le nombre de modèles à comparer ?",
-            requireInput: false,
-          },
-          {
-            id: buttonsMessageId, // Ajoutez l'ID ici
-            user: "MLER",
-            text: (
-              <div className="flex justify-around">
-                <button
-                  className="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-teal-300 to-lime-300 group-hover:from-teal-300 group-hover:to-lime-300 dark:text-white dark:hover:text-gray-900 focus:ring-4 focus:outline-none focus:ring-lime-200 dark:focus:ring-lime-800"
-                  onClick={() => {
-                    // Supprimer le message des boutons
-                    setMessages((prevMessages) => prevMessages.filter(msg => msg.id !== buttonsMessageId));
-                    // Afficher le message de confirmation et exécuter la fonction associée
-                    setMessages((prevMessages) => [
-                      ...prevMessages,
-                      { user: "user", text: "Oui", requireInput: false },
-                    ]);
-                    handleNbrModelClick();
-                  }}
-                >
-                  <span className="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">
-                    Oui
-                  </span>
-                </button>
-                <button
-                  className="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-teal-300 to-lime-300 group-hover:from-teal-300 group-hover:to-lime-300 dark:text-white dark:hover:text-gray-900 focus:ring-4 focus:outline-none focus:ring-lime-200 dark:focus:ring-lime-800"
-                  onClick={() => {
-                    // Supprimer le message des boutons
-                    setMessages((prevMessages) => prevMessages.filter(msg => msg.id !== buttonsMessageId));
-                    // Afficher le message de confirmation et exécuter la fonction associée
-                    setMessages((prevMessages) => [
-                      ...prevMessages,
-                      { user: "user", text: "Non", requireInput: false },
-                    ]);
-                    predictionnomdel(userInput, nomProjectRef.current, projectDirectoryRef.current);
-                  }}
-                >
-                  <span className="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">
-                    Non
-                  </span>
-                </button>
-              </div>
-            ),
-            requireInput: false,
-          },
-        ]);
+          body: JSON.stringify({
+            tableName,
+            nomProject,
+            projectDirectory,
+            nbrModels,
+          }),
+        });
 
-        if (modelType === "evaluatePrediction") {
-          setMessages((prevMessages) => [
-            ...prevMessages,
-            {
-              user: "MLER",
-              text: "Merci de saisir le nom du projet",
-              requireInput: true,
-            },
-          ]);
-          setWaitingForInput(true);
-          setModelType("evaluatePrediction");
+        if (!response.ok) {
+          throw new Error("Erreur lors de la génération du rapport");
         }
-      } else {
+
+        const result = await response.json();
+
         setMessages((prevMessages) => [
           ...prevMessages,
+          { user: "MLER", text: result.message, requireInput: false },
           {
             user: "MLER",
-            text: `Le fichier ${userInput} n'existe pas dans le chemin spécifié.`,
+            text: "Merci de choisir l’action que vous souhaitez",
             requireInput: false,
           },
+          getInitialMessages()[1],
         ]);
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          {
-            user: "MLER",
-            text: "Merci de saisir le nom de la table :",
-            requireInput: true,
-          },
-        ]);
-      }
-      setWaitingForInput(true);
-    } catch (error) {
-      console.error(
-        "Erreur lors de la recherche du fichier dans le chemin spécifié :",
-        error
-      );
-    }
-  }, [
-    setMessages,
-    setWaitingForInput,
-    setTableName,
-    userInput,
-  ]
-  );
-  const handleSearchTableInPath_evaluate = useCallback(async (userInput) => {
-    setTableName(userInput);
-    console.log("nom de la table serche table ", userInput);
-    try {
-      const response = await fetch(
-        `/api/checkFile/route?tableName=${userInput}`
-      );
-      setTablePath(userInput);
-      const data = await response.json();
-      if (data.exists) {
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          {
-            user: "MLER",
-            text: `Le fichier ${userInput} existe dans le chemin spécifié.${tablePath}`,
-            requireInput: false,
-          },
-        ]);
-
-
+        setShowInputArea(true);
+      } catch (error) {
+        console.error(error);
+        handleError("Error generating report");
         setMessages((prevMessages) => [
           ...prevMessages,
           {
@@ -889,87 +576,496 @@ function ChatBot() {
             text: "Merci de saisir le nom du projet",
             requireInput: true,
           },
-        ]),
-          setWaitingForInput(true),
-          setModelType("evaluatePrediction")
+        ]);
+      }
+    },
+    [setMessages, getInitialMessages]
+  );
 
-      } else {
+  // Check if project exists in partager
+  const evaluer_partager = useCallback(
+    async (projectName) => {
+      try {
+        const checkResponse = await fetch("/api/evaluer-partager", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nomProject: projectName }),
+        });
+        const checkData = await checkResponse.json();
+
+        if (checkData.exists) {
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            {
+              id: 20,
+              user: "MLER",
+              text: `Le projet "${projectName}" existe dans le répertoire partager.`,
+              requireInput: false,
+            },
+          ]);
+          console.log("checkData", checkData.projectPath);
+          nomProject;
+          console.log("table partager", tableName);
+          console.log("projectName partager", projectName);
+
+          await performance_prediction(
+            tableName,
+            projectName,
+            checkData.projectPath
+          );
+
+          // const predictionResponse = await fetch('/api/evaluer_performance', {
+          //   method: 'POST',
+          //   headers: { 'Content-Type': 'application/json' },
+          //   body: JSON.stringify({ tableName, nomProject: projectName, repProject: '/app/partager' })
+          // });
+
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            ...getInitialMessages(),
+          ]);
+        } else {
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            {
+              id: 21,
+              user: "MLER",
+              text: `Le projet "${projectName}" n'existe pas dans le répertoire partager.`,
+              requireInput: false,
+            },
+            {
+              id: 21,
+              user: "MLER",
+              text: "Merci de saisir le nom du projet",
+              requireInput: true,
+            },
+          ]);
+        }
+      } catch (error) {
+        console.error("Erreur:", error);
         setMessages((prevMessages) => [
           ...prevMessages,
           {
+            id: 22,
             user: "MLER",
-            text: `Le fichier ${tableName} n'existe pas dans le chemin spécifié.`,
+            text: "Une erreur s'est produite lors du traitement de votre demande.",
             requireInput: false,
           },
-        ]);
-        setMessages((prevMessages) => [
-          ...prevMessages,
           {
+            id: 21,
             user: "MLER",
-            text: "Merci de saisir le nom de la table :",
+            text: "Merci de saisir le nom du projet",
             requireInput: true,
           },
         ]);
       }
-      setWaitingForInput(true);
-    } catch (error) {
-      console.error(
-        "Erreur lors de la recherche du fichier dans le chemin spécifié :",
-        error
-      );
-    }
-  }, [
-    setMessages,
-    setWaitingForInput,
-    setTableName,
-    userInput,
-  ]
+    },
+    [
+      nomProject,
+      setMessages,
+      setProjectDirectory,
+      setWaitingForInput,
+      setNomProject,
+      userInput,
+    ]
+  );
+  const evaluer_deployer = useCallback(
+    async (projectName) => {
+      try {
+        const checkResponse = await fetch("/api/evaluer-deployer", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nomProject: projectName }),
+        });
+        const checkData = await checkResponse.json();
+
+        if (checkData.exists) {
+          setShowInputArea(true);
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            {
+              id: 20,
+              user: "MLER",
+              text: `Le projet "${projectName}" existe dans le répertoire deployer.`,
+              requireInput: false,
+            },
+          ]);
+          console.log("checkData", checkData.projectPath);
+          nomProject;
+          console.log("table partager", tableName);
+          console.log("projectName partager", projectName);
+
+          await performance_prediction(
+            tableName,
+            projectName,
+            checkData.projectPath
+          );
+
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            ...getInitialMessages(),
+          ]);
+        } else {
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            {
+              id: 21,
+              user: "MLER",
+              text: `Le projet "${projectName}" n'existe pas dans le répertoire deployer.`,
+              requireInput: false,
+            },
+            {
+              id: 21,
+              user: "MLER",
+              text: "Merci de saisir le nom du projet",
+              requireInput: true,
+            },
+          ]);
+        }
+      } catch (error) {
+        console.error("Erreur:", error);
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          {
+            id: 22,
+            user: "MLER",
+            text: "Une erreur s'est produite lors du traitement de votre demande.",
+            requireInput: false,
+          },
+          {
+            id: 21,
+            user: "MLER",
+            text: "Merci de saisir le nom du projet",
+            requireInput: true,
+          },
+        ]);
+      }
+    },
+    [
+      nomProject,
+      setMessages,
+      setProjectDirectory,
+      setWaitingForInput,
+      setNomProject,
+      userInput,
+    ]
   );
 
+  const checkProject_predection = useCallback(
+    async (nomProjet) => {
+      setNomProject(nomProjet);
+      nomProjectRef.current;
+      console.log("nomProjet checkProject_predection", nomProjet);
+      try {
+        const response = await fetch("/api/checkproject", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ nomProjet }),
+        });
 
+        if (!response.ok) {
+          throw new Error(`Erreur HTTP: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data.exists) {
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            {
+              user: "MLER",
+              text: `Le répertoire existe dans le chemin ${data.projectPath}`,
+            },
+            {
+              user: "MLER",
+              text: "Merci de saisir le nom du projet",
+              requireInput: true,
+            },
+          ]);
+          setProjectDirectory(data.projectPath);
+          projectDirectoryRef.current;
+        } else if (data.created) {
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            {
+              user: "MLER",
+              text: `Le répertoire a été créé dans le chemin /app/projet/${nomProjet}`,
+            },
+            {
+              user: "MLER",
+              text: "Merci de saisir le nom de la table :",
+              requireInput: true,
+            },
+          ]);
+          setProjectDirectory(data.projectPath);
+          projectDirectoryRef.current;
+        }
+      } catch (error) {
+        console.error("Erreur lors de la vérification du projet:", error);
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          { user: "MLER", text: `Erreur: ${error.message}` },
+        ]);
+      }
+    },
+    [setNomProject, setMessages, setProjectDirectory]
+  );
+  //calcule numbre model de prediction
+  const handleNumInputForModels = useCallback(
+    (userInput) => {
+      const numInput = parseInt(userInput, 10);
+
+      if (numInput > 10) {
+        setWaitingForInput(true);
+
+        // Afficher les informations de débogage
+
+        // Appeler la fonction prediction avec les paramètres requis
+        prediction(tableName, nomProject, projectDirectory, numInput);
+      } else if (numInput <= 10) {
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          {
+            user: "MLER",
+            text: "Merci de saisir un nombre supérieur à 10 de modèles à comparer.",
+            requireInput: true,
+          },
+        ]);
+        setWaitingForInput(true);
+      }
+
+      // Assurez-vous de ne pas appeler setWaitingForInput plusieurs fois inutilement
+    },
+    [projectDirectory, nomProject, tableName, setMessages, setWaitingForInput]
+  );
+
+  const handleSearchTableInPath = useCallback(
+    async (userInput) => {
+      console.log("nomProjet handleSearchTableInPath ", nomProject);
+      try {
+        const response = await fetch(
+          `/api/checkFile/route?tableName=${userInput}`
+        );
+        setTablePath(userInput);
+        const data = await response.json();
+        const buttonsMessageId = new Date().getTime(); // Exemple d'ID unique basé sur l'heure
+
+        if (data.exists) {
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            {
+              user: "MLER",
+              text: `Le fichier ${userInput} existe dans le chemin spécifié.${tablePath}`,
+              requireInput: false,
+            },
+          ]);
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            {
+              user: "MLER",
+              text: "Souhaitez-vous préciser le nombre de modèles à comparer ?",
+              requireInput: false,
+            },
+            {
+              id: buttonsMessageId, // Ajoutez l'ID ici
+              user: "MLER",
+              text: (
+                <div className="flex justify-around">
+                  <button
+                    className="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-teal-300 to-lime-300 group-hover:from-teal-300 group-hover:to-lime-300 dark:text-white dark:hover:text-gray-900 focus:ring-4 focus:outline-none focus:ring-lime-200 dark:focus:ring-lime-800"
+                    onClick={() => {
+                      // Supprimer le message des boutons
+                      setMessages((prevMessages) =>
+                        prevMessages.filter(
+                          (msg) => msg.id !== buttonsMessageId
+                        )
+                      );
+                      // Afficher le message de confirmation et exécuter la fonction associée
+                      setMessages((prevMessages) => [
+                        ...prevMessages,
+                        { user: "user", text: "Oui", requireInput: false },
+                      ]);
+                      handleNbrModelClick();
+                    }}
+                  >
+                    <span className="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">
+                      Oui
+                    </span>
+                  </button>
+                  <button
+                    className="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-teal-300 to-lime-300 group-hover:from-teal-300 group-hover:to-lime-300 dark:text-white dark:hover:text-gray-900 focus:ring-4 focus:outline-none focus:ring-lime-200 dark:focus:ring-lime-800"
+                    onClick={() => {
+                      // Supprimer le message des boutons
+                      setMessages((prevMessages) =>
+                        prevMessages.filter(
+                          (msg) => msg.id !== buttonsMessageId
+                        )
+                      );
+                      // Afficher le message de confirmation et exécuter la fonction associée
+                      setMessages((prevMessages) => [
+                        ...prevMessages,
+                        { user: "user", text: "Non", requireInput: false },
+                      ]);
+                      predictionnomdel(
+                        userInput,
+                        nomProjectRef.current,
+                        projectDirectoryRef.current
+                      );
+                    }}
+                  >
+                    <span className="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">
+                      Non
+                    </span>
+                  </button>
+                </div>
+              ),
+              requireInput: false,
+            },
+          ]);
+
+          if (modelType === "evaluatePrediction") {
+            setMessages((prevMessages) => [
+              ...prevMessages,
+              {
+                user: "MLER",
+                text: "Merci de saisir le nom du projet",
+                requireInput: true,
+              },
+            ]);
+            setWaitingForInput(true);
+            setModelType("evaluatePrediction");
+          }
+        } else {
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            {
+              user: "MLER",
+              text: `Le fichier ${userInput} n'existe pas dans le chemin spécifié.`,
+              requireInput: false,
+            },
+          ]);
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            {
+              user: "MLER",
+              text: "Merci de saisir le nom de la table :",
+              requireInput: true,
+            },
+          ]);
+        }
+        setWaitingForInput(true);
+      } catch (error) {
+        console.error(
+          "Erreur lors de la recherche du fichier dans le chemin spécifié :",
+          error
+        );
+      }
+    },
+    [setMessages, setWaitingForInput, setTableName, userInput]
+  );
+  const handleSearchTableInPath_evaluate = useCallback(
+    async (userInput) => {
+      setTableName(userInput);
+      console.log("nom de la table serche table ", userInput);
+      try {
+        const response = await fetch(
+          `/api/checkFile/route?tableName=${userInput}`
+        );
+        setTablePath(userInput);
+        const data = await response.json();
+        if (data.exists) {
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            {
+              user: "MLER",
+              text: `Le fichier ${userInput} existe dans le chemin spécifié.${tablePath}`,
+              requireInput: false,
+            },
+          ]);
+
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            {
+              user: "MLER",
+              text: "Merci de saisir le nom du projet",
+              requireInput: true,
+            },
+          ]),
+            setWaitingForInput(true),
+            setModelType("evaluatePrediction");
+        } else {
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            {
+              user: "MLER",
+              text: `Le fichier ${tableName} n'existe pas dans le chemin spécifié.`,
+              requireInput: false,
+            },
+          ]);
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            {
+              user: "MLER",
+              text: "Merci de saisir le nom de la table :",
+              requireInput: true,
+            },
+          ]);
+        }
+        setWaitingForInput(true);
+      } catch (error) {
+        console.error(
+          "Erreur lors de la recherche du fichier dans le chemin spécifié :",
+          error
+        );
+      }
+    },
+    [setMessages, setWaitingForInput, setTableName, userInput]
+  );
 
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
 
+  const performance_prediction = useCallback(
+    async (tableName, nomProject, repProject) => {
+      console.log("nomProject de performance", nomProject);
+      try {
+        const response = await fetch("/api/evaluer_performance", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ tableName, nomProject, repProject }),
+        });
 
+        if (!response.ok) {
+          throw new Error("Erreur lors de l'évaluation de la performance");
+        }
 
+        const result = await response.json();
 
-
-  const performance_prediction = useCallback(async (tableName, nomProject, repProject) => {
-    console.log("nomProject de performance", nomProject);
-    try {
-      const response = await fetch("/api/evaluer_performance", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ tableName, nomProject, repProject }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Erreur lors de l'évaluation de la performance");
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          { user: "MLER", text: result.message, requireInput: false },
+        ]);
+        setShowInputArea(true);
+      } catch (error) {
+        console.error(error);
+        handleError("Error generating report");
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          {
+            user: "MLER",
+            text: "Merci de saisir le nom du projet",
+            requireInput: true,
+          },
+        ]);
       }
-
-      const result = await response.json();
-
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        { user: "MLER", text: result.message, requireInput: false },
-      ]);
-    } catch (error) {
-      console.error(error);
-      handleError("Error generating report");
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        {
-          user: "MLER",
-          text: "Merci de saisir le nom du projet",
-          requireInput: true,
-        },
-      ]);
-    }
-  }, [setMessages, tableName, nomProject, nbrModels]);
+    },
+    [setMessages, tableName, nomProject, nbrModels]
+  );
   const handleError = async (message) => {
     setMessages((prevMessages) => [
       ...prevMessages,
@@ -978,7 +1074,7 @@ function ChatBot() {
   };
 
   const handleNbrModelClick = () => {
-    console.log("nomProjet handleSearchTableInPath ", nomProject)
+    console.log("nomProjet handleSearchTableInPath ", nomProject);
     setMessages((prevMessages) => [
       ...prevMessages,
       {
@@ -988,7 +1084,7 @@ function ChatBot() {
       },
     ]);
     setWaitingForInput(true);
-  }
+  };
 
   const EvaluationButtons = ({ userInput, onButtonClick }) => {
     const [showButtons, setShowButtons] = useState(true);
@@ -1010,7 +1106,7 @@ function ChatBot() {
       <div className="flex justify-around">
         <button
           className="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-teal-300 to-lime-300 group-hover:from-teal-300 group-hover:to-lime-300 dark:text-white dark:hover:text-gray-900 focus:ring-4 focus:outline-none focus:ring-lime-200 dark:focus:ring-lime-800"
-          onClick={() => handleButtonClick('project')}
+          onClick={() => handleButtonClick("project")}
         >
           <span className="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">
             Projet
@@ -1018,7 +1114,7 @@ function ChatBot() {
         </button>
         <button
           className="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-teal-300 to-lime-300 group-hover:from-teal-300 group-hover:to-lime-300 dark:text-white dark:hover:text-gray-900 focus:ring-4 focus:outline-none focus:ring-lime-200 dark:focus:ring-lime-800"
-          onClick={() => handleButtonClick('share')}
+          onClick={() => handleButtonClick("share")}
         >
           <span className="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">
             Partage
@@ -1026,7 +1122,7 @@ function ChatBot() {
         </button>
         <button
           className="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-teal-300 to-lime-300 group-hover:from-teal-300 group-hover:to-lime-300 dark:text-white dark:hover:text-gray-900 focus:ring-4 focus:outline-none focus:ring-lime-200 dark:focus:ring-lime-800"
-          onClick={() => handleButtonClick('deploy')}
+          onClick={() => handleButtonClick("deploy")}
         >
           <span className="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">
             Déploiement
@@ -1037,10 +1133,10 @@ function ChatBot() {
   };
   const checkAndShareProject = async (nomProjet) => {
     try {
-      const response = await fetch('/api/check-and-share-project', {
-        method: 'POST',
+      const response = await fetch("/api/check-and-share-project", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ nomProjet }),
       });
@@ -1053,6 +1149,7 @@ function ChatBot() {
 
       switch (data.case) {
         case 1:
+          setShowInputArea(true);
           setMessages((prevMessages) => [
             ...prevMessages,
             { user: "MLER", text: data.message },
@@ -1063,35 +1160,51 @@ function ChatBot() {
           setMessages((prevMessages) => [
             ...prevMessages,
             { user: "MLER", text: data.message },
-            { user: "MLER", text: "Merci de saisir le nom du projet", requireInput: true }
+            {
+              user: "MLER",
+              text: "Merci de saisir le nom du projet",
+              requireInput: true,
+            },
           ]);
           break;
         case 3:
           setMessages((prevMessages) => [
             ...prevMessages,
             { user: "MLER", text: data.message },
-            { user: "MLER", text: "Merci de saisir le nom du projet", requireInput: true }
+            {
+              user: "MLER",
+              text: "Merci de saisir le nom du projet",
+              requireInput: true,
+            },
           ]);
           break;
         case 4:
           setMessages((prevMessages) => [
             ...prevMessages,
             { user: "MLER", text: data.message },
-            { user: "MLER", text: "Merci de saisir le nom du projet", requireInput: true }
+            {
+              user: "MLER",
+              text: "Merci de saisir le nom du projet",
+              requireInput: true,
+            },
           ]);
           break;
         default:
-          throw new Error('Réponse inattendue du serveur');
+          throw new Error("Réponse inattendue du serveur");
       }
     } catch (error) {
-      console.error('Erreur lors de la vérification ou du partage du projet:', error);
+      console.error(
+        "Erreur lors de la vérification ou du partage du projet:",
+        error
+      );
+      setShowInputArea(true);
       setMessages((prevMessages) => [
         ...prevMessages,
         { user: "MLER", text: `Erreur: ${error.message}` },
         ...getInitialMessages(),
       ]);
     }
-  }
+  };
   const handleSend = async (userInput) => {
     setMessages((prevMessages) => [
       ...prevMessages,
@@ -1112,7 +1225,7 @@ function ChatBot() {
         lastBotMessage.text === "Merci de saisir le nom du projet"
       ) {
         setNomProject(userInput);
-        nomProjectRef.current
+        nomProjectRef.current;
         if (modelType === "prediction") {
           checkProject_predection(userInput);
         }
@@ -1121,7 +1234,6 @@ function ChatBot() {
           setWaitingForInput(true);
           setShowProjectMessage(true);
         }
-
 
         // Dans votre fonction handleSend, remplacez la partie des boutons par ceci :
         if (modelType === "evaluatePrediction") {
@@ -1139,45 +1251,59 @@ function ChatBot() {
             {
               id: buttonsMessageId, // Ajoutez l'ID ici
               user: "MLER",
-              text: <EvaluationButtons userInput={userInput} onButtonClick={(action) => {
-                // Supprimez le message des boutons après le clic
-                setMessages((prevMessages) => prevMessages.filter(msg => msg.id !== buttonsMessageId));
-                // Affichez le message de confirmation et exécutez la fonction associée
-                switch (action) {
-                  case 'project':
-                    setMessages((prevMessages) => [
-                      ...prevMessages,
-                      { user: "user", text: "Projet", requireInput: false },
-                    ]);
-                    chekProjectclick(userInput);
-                    break;
-                  case 'share':
-                    setMessages((prevMessages) => [
-                      ...prevMessages,
-                      { user: "user", text: "Partage", requireInput: false },
-                    ]);
-                    evaluer_partager(userInput);
-                    break;
-                  case 'deploy':
-                    setMessages((prevMessages) => [
-                      ...prevMessages,
-                      { user: "user", text: "Déploiement", requireInput: false },
-                    ]);
-                    evaluer_deployer(userInput);
-                    break;
-                  default:
-                    console.error('Unknown action');
-                }
-              }} />,
+              text: (
+                <EvaluationButtons
+                  userInput={userInput}
+                  onButtonClick={(action) => {
+                    // Supprimez le message des boutons après le clic
+                    setMessages((prevMessages) =>
+                      prevMessages.filter((msg) => msg.id !== buttonsMessageId)
+                    );
+                    // Affichez le message de confirmation et exécutez la fonction associée
+                    switch (action) {
+                      case "project":
+                        setMessages((prevMessages) => [
+                          ...prevMessages,
+                          { user: "user", text: "Projet", requireInput: false },
+                        ]);
+                        chekProjectclick(userInput);
+                        break;
+                      case "share":
+                        setMessages((prevMessages) => [
+                          ...prevMessages,
+                          {
+                            user: "user",
+                            text: "Partage",
+                            requireInput: false,
+                          },
+                        ]);
+                        evaluer_partager(userInput);
+                        break;
+                      case "deploy":
+                        setMessages((prevMessages) => [
+                          ...prevMessages,
+                          {
+                            user: "user",
+                            text: "Déploiement",
+                            requireInput: false,
+                          },
+                        ]);
+                        evaluer_deployer(userInput);
+                        break;
+                      default:
+                        console.error("Unknown action");
+                    }
+                  }}
+                />
+              ),
               requireInput: false,
-            }
+            },
           ]);
         }
 
-
         if (modelType === "shared") {
           setWaitingForInput(true);
-          checkAndShareProject(userInput)
+          checkAndShareProject(userInput);
         }
         if (modelType === "Deploy") {
           setWaitingForInput(true);
@@ -1198,7 +1324,11 @@ function ChatBot() {
                   <button
                     className="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-teal-300 to-lime-300 group-hover:from-teal-300 group-hover:to-lime-300 dark:text-white dark:hover:text-gray-900 focus:ring-4 focus:outline-none focus:ring-lime-200 dark:focus:ring-lime-800"
                     onClick={() => {
-                      setMessages((prevMessages) => prevMessages.filter(msg => msg.id !== buttonsMessageId));
+                      setMessages((prevMessages) =>
+                        prevMessages.filter(
+                          (msg) => msg.id !== buttonsMessageId
+                        )
+                      );
                       setMessages((prevMessages) => [
                         ...prevMessages,
                         { user: "user", text: "Partage", requireInput: false },
@@ -1213,7 +1343,11 @@ function ChatBot() {
                   <button
                     className="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-teal-300 to-lime-300 group-hover:from-teal-300 group-hover:to-lime-300 dark:text-white dark:hover:text-gray-900 focus:ring-4 focus:outline-none focus:ring-lime-200 dark:focus:ring-lime-800"
                     onClick={() => {
-                      setMessages((prevMessages) => prevMessages.filter(msg => msg.id !== buttonsMessageId));
+                      setMessages((prevMessages) =>
+                        prevMessages.filter(
+                          (msg) => msg.id !== buttonsMessageId
+                        )
+                      );
                       setMessages((prevMessages) => [
                         ...prevMessages,
                         { user: "user", text: "Projet", requireInput: false },
@@ -1237,21 +1371,19 @@ function ChatBot() {
       ) {
         setWaitingForInput(true);
         if (modelType === "prediction") {
-          setTableName(userInput)
+          setTableName(userInput);
           handleSearchTableInPath(userInput);
           console.log("nom de la table 1 ", userInput);
-
         }
         if (modelType === "evaluatePrediction") {
-          setTableName(userInput)
+          setTableName(userInput);
           handleSearchTableInPath_evaluate(userInput);
           console.log("nom de la table 1 ", userInput);
-
         }
       } else if (
         lastBotMessage &&
         lastBotMessage.text ===
-        "Merci de saisir un nombre supérieur à 10 de modèles à comparer."
+          "Merci de saisir un nombre supérieur à 10 de modèles à comparer."
       ) {
         setNbrModels(userInput);
         handleNumInputForModels(userInput);
@@ -1263,10 +1395,10 @@ function ChatBot() {
 
   const chekProjectclick = async (nomProjet) => {
     try {
-      const response = await fetch('/api/check-prjEval', {
-        method: 'POST',
+      const response = await fetch("/api/check-prjEval", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ nomProjet }),
       });
@@ -1280,7 +1412,10 @@ function ChatBot() {
       if (data.exists) {
         setMessages((prevMessages) => [
           ...prevMessages,
-          { user: "MLER", text: `Le répertoire existe dans le chemin /app/projet/${nomProjet}` }
+          {
+            user: "MLER",
+            text: `Le répertoire existe dans le chemin /app/projet/${nomProjet}`,
+          },
         ]);
         await performance_prediction(tableName, nomProjet, data.fullPath);
         setMessages((prevMessages) => [
@@ -1290,12 +1425,19 @@ function ChatBot() {
       } else {
         setMessages((prevMessages) => [
           ...prevMessages,
-          { user: "MLER", text: `Le répertoire /app/projet/${nomProjet} n'existe pas.` },
-          { user: "MLER", text: "Merci de saisir le nom du projet", requireInput: true }
+          {
+            user: "MLER",
+            text: `Le répertoire /app/projet/${nomProjet} n'existe pas.`,
+          },
+          {
+            user: "MLER",
+            text: "Merci de saisir le nom du projet",
+            requireInput: true,
+          },
         ]);
       }
     } catch (error) {
-      console.error('Erreur lors de la vérification du projet:', error);
+      console.error("Erreur lors de la vérification du projet:", error);
       setMessages((prevMessages) => [
         ...prevMessages,
         { user: "MLER", text: `Erreur: ${error.message}` },
@@ -1319,7 +1461,7 @@ function ChatBot() {
       }
 
       const result = await response.json();
-
+      setShowInputArea(true);
       setMessages((prevMessages) => [
         ...prevMessages,
         { user: "MLER", text: result.message, requireInput: false },
@@ -1331,7 +1473,6 @@ function ChatBot() {
         getInitialMessages()[1],
       ]);
       // Réactiver la barre d'entrée après une mise à jour des messages
-    setShowInputArea(true);
     } catch (error) {
       console.error(error);
       handleError("Error generating report");
@@ -1346,8 +1487,9 @@ function ChatBot() {
     }
   };
 
-  
   const handleNewClick = () => {
+    setShowInputArea(true);
+
     setMessages((prevMessages) => {
       // Filtrer les messages pour exclure les ID 11 et 12
       const filteredMessages = prevMessages.filter(
@@ -1418,23 +1560,23 @@ function ChatBot() {
     scrollToBottom();
 
     try {
-      const response = await fetch('http://localhost:11434/api/chat', {
-        method: 'POST',
+      const response = await fetch("http://localhost:11434/api/chat", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: 'llama3',
-          messages: [{ role: 'user', content: userInput }],
+          model: "llama3",
+          messages: [{ role: "user", content: userInput }],
         }),
       });
 
       if (!response.ok) {
-        throw new Error('Network response was not ok');
+        throw new Error("Network response was not ok");
       }
 
       const reader = response.body.getReader();
-      const decoder = new TextDecoder('utf-8');
+      const decoder = new TextDecoder("utf-8");
       let botMessage = {
         id: messages.length + 2,
         user: "MLER",
@@ -1461,7 +1603,7 @@ function ChatBot() {
         scrollToBottom();
       }
     } catch (error) {
-      console.error('Error:', error);
+      console.error("Error:", error);
     } finally {
       setBotTyping(false);
     }
@@ -1485,10 +1627,11 @@ function ChatBot() {
             {messages.map((msg, index) => (
               <motion.div
                 key={index}
-                className={`chat-message flex items-start ${msg.user === "user"
-                  ? "justify-end"
-                  : "justify-start bg-[#263238] text-[#1F2937]"
-                  } initial={{ opacity: 0, y: 20 }}
+                className={`chat-message flex items-start ${
+                  msg.user === "user"
+                    ? "justify-end"
+                    : "justify-start bg-[#263238] text-[#1F2937]"
+                } initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}`}
               >
@@ -1503,12 +1646,14 @@ function ChatBot() {
                 )}
                 <div>
                   <div
-                    className={`flex items-center mb-2 ${msg.user === "user" ? "w-full" : ""
-                      }`}
+                    className={`flex items-center mb-2 ${
+                      msg.user === "user" ? "w-full" : ""
+                    }`}
                   >
                     <div
-                      className={`text-xs font-medium ml-2 username ${msg.user === "user" ? "text-white w-full" : ""
-                        }`}
+                      className={`text-xs font-medium ml-2 username ${
+                        msg.user === "user" ? "text-white w-full" : ""
+                      }`}
                     >
                       {msg.user === "user" ? "user" : "MLER"}
                     </div>
@@ -1568,6 +1713,5 @@ function ChatBot() {
       </div>
     </div>
   );
-  
 }
 export default ChatBot;

@@ -2,7 +2,6 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, useCallback } from 'react';
 import UserProfile from '../users/UserProfile';
-import Navbar from '../../components/Navbar';
 
 interface User {
   id: string;

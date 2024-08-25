@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import fs from 'fs';
-import path from 'path';
 
 function getProfiles() {
   const apiPath = '/app/config.json'

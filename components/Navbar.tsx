@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import { ReactNode, useState, useEffect } from 'react';
 import { FaBell, FaIdCard, FaKey, FaUserCircle, FaUsers } from 'react-icons/fa';
-import UserProfile from '../app/users/UserProfile';
+import UserProfile from '../app/users/UserProfile'
+
 interface NavLinkProps {
   href: string;
   children: ReactNode;
@@ -57,7 +58,6 @@ export default function Navbar() {
             </Link>
             <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
               <NavLink href="/users" icon={<FaUsers />}>Gestion des utilisateurs</NavLink>
-              <NavLink href="/profiles" icon={<FaIdCard />}>Gestion des profils</NavLink>
               <NavLink href="/licences" icon={<FaKey />}>Gestion des licences</NavLink>
             </div>
           </div>

@@ -1,7 +1,6 @@
 import bcrypt from 'bcryptjs';
 import fs from 'fs';
 import { NextResponse } from 'next/server';
-import path from 'path';
 
 interface User {
   id: number;

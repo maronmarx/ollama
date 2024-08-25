@@ -70,15 +70,6 @@
       }
     },
     {
-      "id": 18,
-      "nom": "joudian",
-      "email": "joudia@gmail.com",
-      "password": "$2b$10$hmf41Tg3tG1y5o41NIULQOHOg.t1/SDIv3ToeiaNWr8L0vFZCZs9C",
-      "profil": {
-        "nom": "user"
-      }
-    },
-    {
       "id": 24,
       "nom": "chaimae",
       "email": "admin@gmail.com",
@@ -103,18 +94,6 @@
       "isTrialActive": true
     },
     {
-      "id": 26,
-      "nom": "DB",
-      "email": "dben4601@gmail.com",
-      "password": "$2b$10$oG4ZRIEUm/e.mf9JsYe32.6jkYuRAQ/NEDez637.UsW0mlZEWpTrO",
-      "profil": {
-        "nom": "user"
-      },
-      "trialStartDate": "2024-08-14T11:28:48.552Z",
-      "trialEndDate": "2024-09-13T11:28:48.552Z",
-      "isTrialActive": true
-    },
-    {
       "id": 27,
       "nom": "DB-admin",
       "email": "driss.bensouda.s2d@gmail.com",
@@ -123,7 +102,19 @@
         "nom": "admin"
       },
       "trialStartDate": "2024-08-14T11:30:01.159Z",
-      "trialEndDate": "2024-09-13T11:30:01.159Z",
+      "trialEndDate": "2025-10-13T11:30:01.159Z",
+      "isTrialActive": true
+    },
+    {
+      "id": 28,
+      "nom": "merouane",
+      "email": "merouane3toura@gmail.com",
+      "password": "$2a$10$RnQ3dkQJ0JGwnNxKRI5Fqeoaha4rrTz63rn5bstcamtz/AZCiCdku",
+      "profil": {
+        "nom": "user"
+      },
+      "trialStartDate": "2024-08-23T21:36:05.592Z",
+      "trialEndDate": "2024-09-22T21:36:05.592Z",
       "isTrialActive": true
     }
   ],
@@ -182,6 +173,54 @@
       "id": 1723635001184,
       "message": "Nouvel utilisateur créé : driss.bensouda.s2d@gmail.com",
       "createdAt": "2024-08-14T11:30:01.184Z",
+      "read": false
+    },
+    {
+      "id": 1724444242085,
+      "message": "Nouvel utilisateur créé : merouane3toura@gmail.com",
+      "createdAt": "2024-08-23T20:17:22.085Z",
+      "read": false
+    },
+    {
+      "id": 1724447083815,
+      "message": "New user registered: merouane3toura@gmail.com",
+      "createdAt": "2024-08-23T21:04:43.815Z",
+      "read": false
+    },
+    {
+      "id": 1724447262004,
+      "message": "New user registered: merouane3toura@gmail.com",
+      "createdAt": "2024-08-23T21:07:42.004Z",
+      "read": false
+    },
+    {
+      "id": 1724447733878,
+      "message": "New user registered: merouane3toura@gmail.com",
+      "createdAt": "2024-08-23T21:15:33.878Z",
+      "read": false
+    },
+    {
+      "id": 1724448075791,
+      "message": "New user registered: merouane3toura@gmail.com",
+      "createdAt": "2024-08-23T21:21:15.791Z",
+      "read": false
+    },
+    {
+      "id": 1724448255320,
+      "message": "New user registered: maksk@gmail.com",
+      "createdAt": "2024-08-23T21:24:15.320Z",
+      "read": false
+    },
+    {
+      "id": 1724448329683,
+      "message": "Nouvel utilisateur créé : merouane3toura@gmail.com",
+      "createdAt": "2024-08-23T21:25:29.683Z",
+      "read": false
+    },
+    {
+      "id": 1724448965604,
+      "message": "Nouvel utilisateur créé : merouane3toura@gmail.com",
+      "createdAt": "2024-08-23T21:36:05.604Z",
       "read": false
     }
   ]
