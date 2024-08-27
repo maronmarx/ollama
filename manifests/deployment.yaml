@@ -1,0 +1,118 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mler-app-deployment
+  labels:
+    app: mler-mler-app
+spec:
+  replicas: 3 # Nombre de répliques
+  selector:
+    matchLabels:
+      app: mler-mler-app
+  template:
+    metadata:
+      labels:
+        app: mler-mler-app
+    spec:
+      containers:
+        - name: mler-app-container
+          image: acrmler.azurecr.io.azurecr.io/mler-mler-app # Utiliser l'image ACR
+          ports:
+            - containerPort: 3000
+          env:
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: jwt-secret
+                  key: secret
+            - name: OLLAMA_URL
+              value: "http://ollama:11434/v1/"
+          volumeMounts:
+            - name: projet-volume
+              mountPath: /app/projet
+            - name: partager-volume
+              mountPath: /app/partager
+            - name: deployer-volume
+              mountPath: /app/deployer
+            - name: data-volume
+              mountPath: /app/data
+            - name: prediction-r-volume
+              mountPath: /app/prediction.R
+            - name: performance-prediction-r-volume
+              mountPath: /app/performance_prediction.R
+            - name: log-volume
+              mountPath: /app/Log
+            - name: config-volume
+              mountPath: /app/config.json
+      volumes:
+        - name: projet-volume
+          azureFile:
+            secretName: azure-secret
+            shareName: projet-share
+            readOnly: false
+        - name: partager-volume
+          azureFile:
+            secretName: azure-secret
+            shareName: partager-share
+            readOnly: false
+        - name: deployer-volume
+          azureFile:
+            secretName: azure-secret
+            shareName: deployer-share
+            readOnly: false
+        - name: data-volume
+          azureFile:
+            secretName: azure-secret
+            shareName: data-share
+            readOnly: false
+        - name: prediction-r-volume
+          azureFile:
+            secretName: azure-secret
+            shareName: prediction-r-share
+            readOnly: false
+        - name: performance-prediction-r-volume
+          azureFile:
+            secretName: azure-secret
+            shareName: performance-prediction-r-share
+            readOnly: false
+        - name: log-volume
+          azureFile:
+            secretName: azure-secret
+            shareName: log-share
+            readOnly: false
+        - name: config-volume
+          azureFile:
+            secretName: azure-secret
+            shareName: config-share
+            readOnly: false
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ollama-deployment
+  labels:
+    app: ollama
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ollama
+  template:
+    metadata:
+      labels:
+        app: ollama
+    spec:
+      containers:
+        - name: ollama-container
+          image: ollama/ollama
+          ports:
+            - containerPort: 11434
+          volumeMounts:
+            - name: ollama-volume
+              mountPath: /root/.ollama
+      volumes:
+        - name: ollama-volume
+          azureFile:
+            secretName: azure-secret
+            shareName: ollama-share
+            readOnly: false
