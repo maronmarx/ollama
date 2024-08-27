@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: mler-app-container
-          image: acrmler.azurecr.io.azurecr.io/mler-mler-app # Utiliser l'image ACR
+          image: acrmler.azurecr.io/mler-mler-app:latest # Utiliser l'image ACR
           ports:
             - containerPort: 3000
           env:
