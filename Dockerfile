@@ -1,4 +1,4 @@
-FROM node:20.15.0
+FROM node:latest
 
 # Installer R et les dépendances nécessaires
 RUN apt-get update && \
